@@ -1,8 +1,10 @@
-import Vue from 'vue'
-import App from './App.vue'
+import { VueConstructor } from 'vue'
+import resizableColumns from '@/lib/resizable-columns-directive'
 
-Vue.config.productionTip = false
+function install(Vue: VueConstructor): void {
+  Vue.directive('resizable-columns', resizableColumns)
+}
 
-new Vue({
-  render: (h) => h(App),
-}).$mount('#app')
+export default {
+  install,
+}
