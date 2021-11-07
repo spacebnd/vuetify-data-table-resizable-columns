@@ -1,8 +1,8 @@
 import { VueConstructor } from 'vue'
-import resizableColumns from '@/lib/resizable-columns-directive'
+import directive from '@/lib/directive'
 
 function install(Vue: VueConstructor): void {
-  Vue.directive('resizable-columns', resizableColumns)
+  Vue.directive('resizable-columns', directive)
 }
 
 export default {
