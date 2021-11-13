@@ -246,6 +246,7 @@ export const resizeHandler = (controller: ControllerInstance, event: MouseEvent)
 
       if (differenceFromStartPageXPosition && movingThNewWidth >= movingHeaderMinWidth) {
         movingTh.style.width = movingThNewWidth + 'px'
+        movingTh.style.minWidth = 'auto'
         dataTableHeaders[movingDividerIndex].width = movingThNewWidth
 
         showMessage('info', `Changed width for column with index ${movingDividerIndex}`, false)
