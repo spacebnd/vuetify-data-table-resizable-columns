@@ -3,7 +3,10 @@ import { DirectiveBinding } from 'vue/types/options'
 
 export interface Binding extends DirectiveBinding {
   rawName: string
+  value: UserOption
 }
+
+export type UserOption = 'redraw' | 'debug' | null
 
 export interface Controller {
   binding: Binding | null
@@ -55,3 +58,5 @@ export interface DataTableHeader<T extends any = any> {
 }
 
 type DataTableCompareFunction<T = any> = (a: T, b: T) => number
+
+export type MessageType = 'info' | 'error'

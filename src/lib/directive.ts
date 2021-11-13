@@ -1,31 +1,44 @@
 import type { DirectiveOptions, VNode } from 'vue'
 import type { DirectiveBinding } from 'vue/types/options'
-import { Binding, DataTableContainer } from '@/lib/types'
+import { Binding, DataTableContainer, UserOption } from '@/lib/types'
+import { setIsDebug } from '@/lib/constants'
 import {
-  drawColumnDividers,
   isDataTableElement,
   isMobile,
+  resizeObserverHandler,
+  drawColumnDividers,
   removeDividersContainer,
   removeListeners,
-  resizeObserverHandler,
+  showMessage,
 } from '@/lib/functions'
 
 const directive: DirectiveOptions = {
   inserted(el: HTMLElement, binding: DirectiveBinding, vnode: VNode) {
+    const userOption: UserOption = binding.value
+
+    if (userOption === 'debug') {
+      setIsDebug(true)
+    }
+
+    showMessage('info', 'Inserted', false)
+
     if (!isDataTableElement(el)) {
-      console.error('no v-data-table')
+      showMessage('error', 'Directive should be applied to the v-data-table component', true)
     } else if (isMobile(el)) {
-      console.error('mobile')
+      showMessage('error', 'Directive is for desktop only', false)
     } else {
       const observer: ResizeObserver = new ResizeObserver(
         resizeObserverHandler.bind(null, <Binding>binding, vnode)
       )
+      showMessage('info', 'Observing started...', false)
       observer.observe(el)
     }
   },
 
   update(el: HTMLElement, binding: DirectiveBinding, vnode: VNode): void {
-    if (binding.value === true) {
+    const userOption: UserOption = binding.value
+
+    if (userOption === 'redraw') {
       if (isMobile(el)) {
         removeDividersContainer(<DataTableContainer>el)
         removeListeners(<DataTableContainer>el)
@@ -35,7 +48,7 @@ const directive: DirectiveOptions = {
 
       const propertyName = <string>binding.expression
       const component = <any>vnode.context
-      component[propertyName] = false
+      component[propertyName] = null
     }
   },
 
