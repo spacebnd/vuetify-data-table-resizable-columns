@@ -122,7 +122,11 @@ export const drawColumnDividers = (
     dividersContainer.classList.add('resizable-columns-dividers-container')
     dividersContainer.setAttribute(
       'style',
-      `position: relative; width: ${dataTableContainer.offsetWidth}px;`
+      `${
+        isFixedHeadersActive(dataTableContainer)
+          ? 'position: sticky; top: 0; z-index: 3;'
+          : 'position: relative;'
+      } width: ${dataTableContainer.offsetWidth}px; `
     )
     tableWrapper?.prepend(dividersContainer)
 
@@ -148,7 +152,9 @@ export const drawColumnDividers = (
       const dividerStep = nextTh.offsetLeft - INDENT_TO_NATIVE_VUETIFY_DIVIDER + 'px'
       divider.setAttribute(
         'style',
-        `position: absolute; top: 0; left: ${dividerStep}; height: ${dividerHeight}; width: 20px; display: flex; justify-content: center; cursor: col-resize; z-index: 1;`
+        `position: absolute; top: 0; left: ${dividerStep}; height: ${dividerHeight}; width: 20px; display: flex; justify-content: center; cursor: col-resize; z-index: ${
+          isFixedHeadersActive(dataTableContainer) ? '3' : '1'
+        };`
       )
       dividerBackgroundBox.setAttribute(
         'style',
@@ -286,6 +292,10 @@ export const removeListeners = (dataTableContainer: DataTableContainer): void =>
 // checks
 export const isDataTableElement = (element: HTMLElement): boolean => {
   return Array.from(element.classList).includes('v-data-table')
+}
+
+export const isFixedHeadersActive = (element: HTMLElement): boolean => {
+  return Array.from(element.classList).includes('v-data-table--fixed-header')
 }
 
 export const isDataTableReady = (element: HTMLElement): boolean => {
