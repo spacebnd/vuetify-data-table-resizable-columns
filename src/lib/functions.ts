@@ -1,4 +1,5 @@
 import {
+  CLASSES,
   DEFAULT_HEADER_MIN_WIDTH,
   INDENT_TO_NATIVE_VUETIFY_DIVIDER,
   IS_DEBUG,
@@ -16,7 +17,7 @@ import type {
 } from '@/lib/types'
 
 // controller
-export const generateController = (): ControllerInstance => {
+const generateController = (): ControllerInstance => {
   const template: Controller = {
     binding: null,
     vnode: null,
@@ -62,13 +63,6 @@ const generateAdditionalDataTableProps = (
     const thsArray = <HTMLTableHeaderCellElement[]>controller.get('thsArray')
     const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
 
-    const emptyColumnIndex: number = dataTableHeaders.findIndex(
-      (header) => header.type === `${binding.rawName}_empty-column`
-    )
-    if (emptyColumnIndex !== -1) {
-      dataTableHeaders.splice(emptyColumnIndex, 1)
-    }
-
     dataTableHeaders.forEach((header: DataTableHeader, index: number) => {
       if (!header.width) {
         header.width = thsArray[index].offsetWidth
@@ -87,14 +81,19 @@ const generateAdditionalDataTableProps = (
       }
     })
 
-    dataTableHeaders.push({
-      type: `${binding.rawName}_empty-column`,
-      text: '',
-      value: '',
-      width: 'auto',
-      sortable: false,
-      divider: false,
-    })
+    const emptyColumnIndex: number = dataTableHeaders.findIndex(
+      (header) => header.class === CLASSES.EMPTY_COLUMN
+    )
+    if (emptyColumnIndex === -1) {
+      dataTableHeaders.push({
+        class: CLASSES.EMPTY_COLUMN,
+        text: '',
+        value: '',
+        width: 'auto',
+        sortable: false,
+        divider: false,
+      })
+    }
   } catch (error) {
     showMessage('error', `generateAdditionalDataTableProps: ${error}`, false)
   }
@@ -110,24 +109,21 @@ export const drawColumnDividers = (
   try {
     removeDividersContainer(dataTableContainer)
 
-    const tableWrapper = <HTMLDivElement>dataTableContainer.querySelector('.v-data-table__wrapper')
+    const tableWrapper = <HTMLDivElement>(
+      dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_WRAPPER}`)
+    )
     const table = <HTMLTableElement>tableWrapper.querySelector('table')
-    const thead = <HTMLTableSectionElement>dataTableContainer.querySelector('.v-data-table-header')
+    const thead = <HTMLTableSectionElement>(
+      dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_HEADER}`)
+    )
     const thsCollection: HTMLCollectionOf<HTMLTableHeaderCellElement> =
       thead.getElementsByTagName('th')
     const thsArray: HTMLTableHeaderCellElement[] = Array.from(thsCollection)
     const dividersContainer: HTMLDivElement = document.createElement('div')
 
-    table.setAttribute('style', `position: relative; table-layout: fixed;`)
-    dividersContainer.classList.add('resizable-columns-dividers-container')
-    dividersContainer.setAttribute(
-      'style',
-      `${
-        isFixedHeadersActive(dataTableContainer)
-          ? 'position: sticky; top: 0; z-index: 3;'
-          : 'position: relative;'
-      } width: ${dataTableContainer.offsetWidth}px; `
-    )
+    table.setAttribute('style', getTableStyles())
+    dividersContainer.classList.add(CLASSES.DIVIDERS_CONTAINER)
+    dividersContainer.setAttribute('style', getDividersContainerStyles(dataTableContainer))
     tableWrapper?.prepend(dividersContainer)
 
     const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
@@ -145,21 +141,11 @@ export const drawColumnDividers = (
     for (let index = 0; index < thsArray.length - 1; index++) {
       const nextTh: HTMLTableHeaderCellElement = thsArray[index + 1]
       const divider: Divider = document.createElement('div')
-      divider.classList.add('resizable-columns-divider')
+      divider.classList.add(CLASSES.DIVIDER)
       const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
 
-      const dividerHeight = thead.offsetHeight + 'px'
-      const dividerStep = nextTh.offsetLeft - INDENT_TO_NATIVE_VUETIFY_DIVIDER + 'px'
-      divider.setAttribute(
-        'style',
-        `position: absolute; top: 0; left: ${dividerStep}; height: ${dividerHeight}; width: 20px; display: flex; justify-content: center; cursor: col-resize; z-index: ${
-          isFixedHeadersActive(dataTableContainer) ? '3' : '1'
-        };`
-      )
-      dividerBackgroundBox.setAttribute(
-        'style',
-        `width: 1px; height: 100%; background-color: rgba(128, 128, 128, 0.3)`
-      )
+      divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
+      dividerBackgroundBox.setAttribute('style', getDividerBackgroundBoxStyles())
 
       divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
       divider.addEventListener('mousedown', divider.dividerMouseDownHandler)
@@ -193,7 +179,7 @@ export const removeDividersContainer = (dataTableContainer: DataTableContainer):
 }
 
 // event handlers
-export const mouseDownHandler = (
+const mouseDownHandler = (
   index: number,
   controller: ControllerInstance,
   event: MouseEvent
@@ -215,7 +201,7 @@ export const mouseDownHandler = (
   }
 }
 
-export const mouseUpHandler = (controller: ControllerInstance): void => {
+const mouseUpHandler = (controller: ControllerInstance): void => {
   try {
     if (!controller.get('isMoving')) return
     controller.set('isMoving', false)
@@ -226,12 +212,21 @@ export const mouseUpHandler = (controller: ControllerInstance): void => {
       <VNode>controller.get('vnode')
     )
     toggleMovingStyles(false, controller)
+
+    const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
+    const thsArray = <HTMLTableHeaderCellElement[]>controller.get('thsArray')
+    dataTableHeaders.forEach((header, index) => {
+      if (header.class !== CLASSES.EMPTY_COLUMN) {
+        header.width = thsArray[index].offsetWidth
+      }
+      showMessage('info', 'Headers array in the component has been updated', false)
+    })
   } catch (error) {
     showMessage('error', `mouseUpHandler: ${error}` + error, false)
   }
 }
 
-export const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void => {
+const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void => {
   try {
     if (controller.get('isMoving')) {
       const startPageXPosition = <number>controller.get('startPageXPosition')
@@ -292,29 +287,29 @@ export const removeListeners = (dataTableContainer: DataTableContainer): void =>
 
 // checks
 export const isDataTableElement = (element: HTMLElement): boolean => {
-  return Array.from(element.classList).includes('v-data-table')
+  return Array.from(element.classList).includes(CLASSES.DATA_TABLE)
 }
 
-export const isFixedHeadersActive = (element: HTMLElement): boolean => {
-  return Array.from(element.classList).includes('v-data-table--fixed-header')
+const isFixedHeadersActive = (element: HTMLElement): boolean => {
+  return Array.from(element.classList).includes(CLASSES.DATA_TABLE_FIXED_HEADER)
 }
 
-export const isDataTableReady = (element: HTMLElement): boolean => {
+const isDataTableReady = (element: HTMLElement): boolean => {
   const tableBody = <HTMLTableSectionElement>element.querySelector('tbody')
   const tableHeadRow = <HTMLTableRowElement>element.querySelector('tr')
 
   return (
-    !tableBody.children[0]?.className.includes('v-data-table__empty-wrapper') &&
+    !tableBody.children[0]?.className.includes(CLASSES.DATA_TABLE_EMPTY_WRAPPER) &&
     tableHeadRow.children?.length > 1
   )
 }
 
 export const isMobile = (element: HTMLElement): boolean => {
-  return element.className.includes('v-data-table--mobile')
+  return element.className.includes(CLASSES.DATA_TABLE_MOBILE)
 }
 
 // styles
-export const toggleMovingStyles = (isMoving: boolean, controller: ControllerInstance): void => {
+const toggleMovingStyles = (isMoving: boolean, controller: ControllerInstance): void => {
   try {
     const movingTh = <HTMLTableHeaderCellElement>controller.get('movingTh')
     const nextTh = <HTMLTableHeaderCellElement>controller.get('nextTh')
@@ -330,6 +325,36 @@ export const toggleMovingStyles = (isMoving: boolean, controller: ControllerInst
   } catch (error) {
     showMessage('error', `toggleMovingStyles: ${error}`, false)
   }
+}
+
+const getTableStyles = (): string => {
+  return 'position: relative; table-layout: fixed;'
+}
+
+const getDividersContainerStyles = (dataTableContainer: DataTableContainer): string => {
+  return `${
+    isFixedHeadersActive(dataTableContainer)
+      ? 'position: sticky; top: 0; z-index: 3;'
+      : 'position: relative;'
+  } width: ${dataTableContainer.offsetWidth}px; `
+}
+
+const getDividerStyles = (
+  dataTableContainer: DataTableContainer,
+  thead: HTMLTableSectionElement,
+  nextTh: HTMLTableHeaderCellElement
+) => {
+  const dividerHeight = thead.offsetHeight + 'px'
+  const dividerStep = nextTh.offsetLeft - INDENT_TO_NATIVE_VUETIFY_DIVIDER + 'px'
+  const positionStyles = `position: absolute; top: 0; left: ${dividerStep}; height: ${dividerHeight};`
+
+  return `${positionStyles} width: 20px; display: flex; justify-content: center; cursor: col-resize; z-index: ${
+    isFixedHeadersActive(dataTableContainer) ? '3' : '1'
+  };`
+}
+
+const getDividerBackgroundBoxStyles = () => {
+  return `width: 1px; height: 100%; background-color: rgba(128, 128, 128, 0.3)`
 }
 
 // logs
