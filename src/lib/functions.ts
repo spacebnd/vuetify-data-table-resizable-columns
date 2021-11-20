@@ -66,7 +66,7 @@ const generateAdditionalDataTableProps = (
     dataTableHeaders.forEach((header: DataTableHeader, index: number) => {
       if (!header.width) {
         header.width = thsArray[index].offsetWidth
-      } else if (typeof header.width === 'string') {
+      } else if (typeof header.width === 'string' && header.class !== CLASSES.EMPTY_COLUMN) {
         header.width = +header.width
       }
 
@@ -76,9 +76,7 @@ const generateAdditionalDataTableProps = (
         header.minWidth = +header.minWidth
       }
 
-      if (typeof header.divider !== 'boolean') {
-        header.divider = true
-      }
+      if (index === dataTableHeaders.length - 1) header.divider = false
     })
 
     const emptyColumnIndex: number = dataTableHeaders.findIndex(
@@ -138,7 +136,14 @@ export const drawColumnDividers = (
 
     generateAdditionalDataTableProps(vnode, binding, controller)
 
+    let isEmptyColumnExist: boolean = Array.from(thsArray[thsArray.length - 1].classList).includes(
+      CLASSES.EMPTY_COLUMN
+    )
     for (let index = 0; index < thsArray.length - 1; index++) {
+      if (index === thsArray.length - 2 && isEmptyColumnExist) {
+        continue
+      }
+
       const nextTh: HTMLTableHeaderCellElement = thsArray[index + 1]
       const divider: Divider = document.createElement('div')
       divider.classList.add(CLASSES.DIVIDER)
@@ -219,8 +224,8 @@ const mouseUpHandler = (controller: ControllerInstance): void => {
       if (header.class !== CLASSES.EMPTY_COLUMN) {
         header.width = thsArray[index].offsetWidth
       }
-      showMessage('info', 'Headers array in the component has been updated', false)
     })
+    showMessage('info', 'Headers array in the component has been updated', false)
   } catch (error) {
     showMessage('error', `mouseUpHandler: ${error}` + error, false)
   }
