@@ -91,6 +91,7 @@ const generateAdditionalDataTableProps = (
         sortable: false,
         divider: false,
       })
+      showMessage('info', 'Empty helper column added to array of headers', false)
     }
   } catch (error) {
     showMessage('error', `generateAdditionalDataTableProps: ${error}`, false)
@@ -106,6 +107,7 @@ export const drawColumnDividers = (
 
   try {
     removeDividersContainer(dataTableContainer)
+    removeListeners(dataTableContainer)
 
     const tableWrapper = <HTMLDivElement>(
       dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_WRAPPER}`)
@@ -136,10 +138,13 @@ export const drawColumnDividers = (
 
     generateAdditionalDataTableProps(vnode, binding, controller)
 
-    let isEmptyColumnExist: boolean = Array.from(thsArray[thsArray.length - 1].classList).includes(
-      CLASSES.EMPTY_COLUMN
-    )
+    const isEmptyColumnExist: boolean = Array.from(
+      thsArray[thsArray.length - 1].classList
+    ).includes(CLASSES.EMPTY_COLUMN)
+
     for (let index = 0; index < thsArray.length - 1; index++) {
+      setEllipsisStyles([thsArray[index]])
+
       if (index === thsArray.length - 2 && isEmptyColumnExist) {
         continue
       }
@@ -158,12 +163,16 @@ export const drawColumnDividers = (
       dividersContainer.append(divider)
     }
 
+    const tdsList: NodeListOf<HTMLTableDataCellElement> = dataTableContainer.querySelectorAll('td')
+    setEllipsisStyles(Array.from(tdsList))
+
     const dividersList: NodeListOf<HTMLDivElement> = dividersContainer.querySelectorAll(
       '.resizable-columns-divider'
     )
     const dividersArray: HTMLDivElement[] = Array.from(dividersList)
     controller.set('dividersArray', dividersArray)
 
+    showMessage('info', 'Adding listeners...', false)
     dataTableContainer.dataTableMouseUpHandler = mouseUpHandler.bind(null, controller)
     dataTableContainer.dataTableResizeHandler = resizeHandler.bind(null, controller)
     document.addEventListener('mouseup', dataTableContainer.dataTableMouseUpHandler)
@@ -225,7 +234,7 @@ const mouseUpHandler = (controller: ControllerInstance): void => {
         header.width = thsArray[index].offsetWidth
       }
     })
-    showMessage('info', 'Headers array in the component has been updated', false)
+    showMessage('info', 'Updated array of headers in the component', false)
   } catch (error) {
     showMessage('error', `mouseUpHandler: ${error}` + error, false)
   }
@@ -249,7 +258,7 @@ const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void 
         movingTh.style.minWidth = 'auto'
         dataTableHeaders[movingDividerIndex].width = movingThNewWidth
 
-        showMessage('info', `Changed width for column with index ${movingDividerIndex}`, false)
+        showMessage('info', `Changed width for <th> with index ${movingDividerIndex}`, false)
       }
     }
   } catch (error) {
@@ -258,7 +267,7 @@ const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void 
 }
 
 export const removeListeners = (dataTableContainer: DataTableContainer): void => {
-  showMessage('info', 'Remove listeners...', false)
+  showMessage('info', 'Removing listeners...', false)
 
   try {
     document.removeEventListener(
@@ -334,6 +343,18 @@ const toggleMovingStyles = (isMoving: boolean, controller: ControllerInstance): 
 
 const getTableStyles = (): string => {
   return 'position: relative; table-layout: fixed;'
+}
+
+const setEllipsisStyles = (payload: HTMLElement | HTMLElement[]): void => {
+  if (Array.isArray(payload)) {
+    payload.forEach((element) => {
+      element.style.overflow = 'hidden'
+      element.style.textOverflow = 'ellipsis'
+    })
+  } else {
+    payload.style.overflow = 'hidden'
+    payload.style.textOverflow = 'ellipsis'
+  }
 }
 
 const getDividersContainerStyles = (dataTableContainer: DataTableContainer): string => {
