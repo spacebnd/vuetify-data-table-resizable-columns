@@ -47,11 +47,12 @@ export const resizeObserverHandler = (
   const el = <DataTableContainer>entries[0].target
   showMessage('info', `Resize detected`, false)
 
-  if (isDataTableReady(el)) {
+  if (isDataTableReady(el, vnode)) {
     drawColumnDividers(el, <Binding>binding, vnode)
-    observer.disconnect()
-    showMessage('info', 'Observing finished', false)
   }
+
+  showMessage('info', 'Observing finished', false)
+  observer.disconnect()
 }
 
 const generateAdditionalDataTableProps = (
@@ -308,14 +309,25 @@ const isFixedHeadersActive = (element: HTMLElement): boolean => {
   return Array.from(element.classList).includes(CLASSES.DATA_TABLE_FIXED_HEADER)
 }
 
-const isDataTableReady = (element: HTMLElement): boolean => {
-  const tableBody = <HTMLTableSectionElement>element.querySelector('tbody')
-  const tableHeadRow = <HTMLTableRowElement>element.querySelector('tr')
+export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean => {
+  const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
+  const oldDataTableProps = <DataTableProps>oldVnode.componentOptions?.propsData
 
-  return (
-    !tableBody.children[0]?.className.includes(CLASSES.DATA_TABLE_EMPTY_WRAPPER) &&
-    tableHeadRow.children?.length > 1
-  )
+  const isHeadersChanged = dataTableProps.headers.length !== oldDataTableProps.headers.length
+  const isItemsChanged = dataTableProps.items.length !== oldDataTableProps.items.length
+
+  return isHeadersChanged || isItemsChanged
+}
+
+export const isDataTableReady = (element: HTMLElement, vnode: VNode): boolean => {
+  const tableHeadRow = <HTMLTableRowElement>element.querySelector('tr')
+  const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
+
+  const isDataTableHeadersExist = !!dataTableProps.headers.length
+  const isDataTableItemsExist = !!dataTableProps.items.length
+  const isThsElementsInserted = !!tableHeadRow.children?.length
+
+  return isDataTableHeadersExist && isDataTableItemsExist && isThsElementsInserted
 }
 
 export const isMobile = (element: HTMLElement): boolean => {
@@ -384,7 +396,7 @@ const getDividerBackgroundBoxStyles = () => {
 }
 
 // logs
-export const showMessage = (type: MessageType, text: string, visibleForUser = true): void => {
+export const showMessage = (type: MessageType, text: string, visibleForUser = false): void => {
   if (!visibleForUser && !IS_DEBUG) return
 
   const message = `[v-resizable-columns]: ${text}`

@@ -1,5 +1,3 @@
-export const DEFAULT_HEADER_MIN_WIDTH = 80 // px
-export const INDENT_TO_NATIVE_VUETIFY_DIVIDER = 11 // px
 export const CLASSES = {
   DATA_TABLE_WRAPPER: 'v-data-table__wrapper',
   DATA_TABLE: 'v-data-table',
@@ -11,7 +9,10 @@ export const CLASSES = {
   DIVIDER: 'resizable-columns-divider',
   EMPTY_COLUMN: 'v-resizable-columns_empty-column',
 }
+export const DEFAULT_HEADER_MIN_WIDTH = 80 // px
+export const INDENT_TO_NATIVE_VUETIFY_DIVIDER = 11 // px
 export let IS_DEBUG = false
+
 export const setIsDebug = (value: boolean): void => {
   IS_DEBUG = value
 }

@@ -5,6 +5,8 @@ import { setIsDebug } from '@/lib/constants'
 import {
   isDataTableElement,
   isMobile,
+  isDataTablePropsChanged,
+  isDataTableReady,
   resizeObserverHandler,
   drawColumnDividers,
   removeDividersContainer,
@@ -15,40 +17,63 @@ import {
 const directive: DirectiveOptions = {
   inserted(el: HTMLElement, binding: DirectiveBinding, vnode: VNode) {
     const userOption: UserOption = binding.value
-
     if (userOption === 'debug') {
       setIsDebug(true)
     }
-
     showMessage('info', 'Inserted', false)
 
     if (!isDataTableElement(el)) {
       showMessage('error', 'Directive should be applied to the v-data-table component', true)
-    } else if (isMobile(el)) {
+      return
+    }
+
+    if (isMobile(el)) {
       showMessage('error', 'Directive is for desktop only', false)
-    } else {
-      const observer: ResizeObserver = new ResizeObserver(
-        resizeObserverHandler.bind(null, <Binding>binding, vnode)
-      )
-      showMessage('info', 'Observing started...', false)
-      observer.observe(el)
+      return
+    }
+
+    if (isDataTableReady(el, vnode)) {
+      drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
     }
   },
 
-  update(el: HTMLElement, binding: DirectiveBinding, vnode: VNode): void {
+  update(el: HTMLElement, binding: DirectiveBinding, vnode: VNode, oldVnode: VNode): void {
     const userOption: UserOption = binding.value
+    const component = <any>vnode.context
+    showMessage(
+      'info',
+      `VNode updated ${
+        userOption && userOption !== 'debug' ? `with user option: ${userOption}` : ''
+      }`,
+      false
+    )
+
+    if (isMobile(el)) {
+      removeDividersContainer(<DataTableContainer>el)
+      removeListeners(<DataTableContainer>el)
+      return
+    }
 
     if (userOption === 'redraw') {
-      if (isMobile(el)) {
-        removeDividersContainer(<DataTableContainer>el)
-        removeListeners(<DataTableContainer>el)
-      } else {
-        drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
-      }
-
+      drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
       const propertyName = <string>binding.expression
-      const component = <any>vnode.context
       component[propertyName] = null
+      showMessage('info', 'User option reset')
+
+      return
+    }
+
+    if (isDataTablePropsChanged(vnode, oldVnode)) {
+      if (isDataTableReady(el, vnode)) {
+        showMessage('info', 'Data table props changed and data table is ready', false)
+        drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
+      } else {
+        const observer: ResizeObserver = new ResizeObserver(
+          resizeObserverHandler.bind(null, <Binding>binding, vnode)
+        )
+        showMessage('info', 'Observing started...', false)
+        observer.observe(el)
+      }
     }
   },
 
