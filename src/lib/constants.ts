@@ -3,7 +3,7 @@ export const CLASSES = {
   DATA_TABLE: 'v-data-table',
   DATA_TABLE_HEADER: 'v-data-table-header',
   DATA_TABLE_FIXED_HEADER: 'v-data-table--fixed-header',
-  DATA_TABLE_EMPTY_WRAPPER: 'v-data-table__empty-wrapper',
+  DATA_TABLE_DARK_THEME: 'theme--dark',
   DATA_TABLE_MOBILE: 'v-data-table--mobile',
   DIVIDERS_CONTAINER: 'resizable-columns-dividers-container',
   DIVIDER: 'resizable-columns-divider',

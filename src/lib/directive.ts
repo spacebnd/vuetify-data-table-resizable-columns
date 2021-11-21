@@ -32,7 +32,7 @@ const directive: DirectiveOptions = {
       return
     }
 
-    if (isDataTableReady(el, vnode)) {
+    if (isDataTableReady(<DataTableContainer>el, vnode)) {
       drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
     }
   },
@@ -64,7 +64,7 @@ const directive: DirectiveOptions = {
     }
 
     if (isDataTablePropsChanged(vnode, oldVnode)) {
-      if (isDataTableReady(el, vnode)) {
+      if (isDataTableReady(<DataTableContainer>el, vnode)) {
         showMessage('info', 'Data table props changed and data table is ready', false)
         drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
       } else {

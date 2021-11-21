@@ -156,7 +156,7 @@ export const drawColumnDividers = (
       const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
 
       divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
-      dividerBackgroundBox.setAttribute('style', getDividerBackgroundBoxStyles())
+      dividerBackgroundBox.setAttribute('style', getDividerBackgroundBoxStyles(dataTableContainer))
 
       divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
       divider.addEventListener('mousedown', divider.dividerMouseDownHandler)
@@ -305,8 +305,12 @@ export const isDataTableElement = (element: HTMLElement): boolean => {
   return Array.from(element.classList).includes(CLASSES.DATA_TABLE)
 }
 
-const isFixedHeadersActive = (element: HTMLElement): boolean => {
-  return Array.from(element.classList).includes(CLASSES.DATA_TABLE_FIXED_HEADER)
+const isFixedHeadersActive = (dataTableContainer: DataTableContainer): boolean => {
+  return Array.from(dataTableContainer.classList).includes(CLASSES.DATA_TABLE_FIXED_HEADER)
+}
+
+const isDarkThemeActive = (dataTableContainer: DataTableContainer): boolean => {
+  return Array.from(dataTableContainer.classList).includes(CLASSES.DATA_TABLE_DARK_THEME)
 }
 
 export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean => {
@@ -319,8 +323,8 @@ export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean 
   return isHeadersChanged || isItemsChanged
 }
 
-export const isDataTableReady = (element: HTMLElement, vnode: VNode): boolean => {
-  const tableHeadRow = <HTMLTableRowElement>element.querySelector('tr')
+export const isDataTableReady = (dataTableContainer: DataTableContainer, vnode: VNode): boolean => {
+  const tableHeadRow = <HTMLTableRowElement>dataTableContainer.querySelector('tr')
   const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
 
   const isDataTableHeadersExist = !!dataTableProps.headers.length
@@ -391,8 +395,10 @@ const getDividerStyles = (
   };`
 }
 
-const getDividerBackgroundBoxStyles = () => {
-  return `width: 1px; height: 100%; background-color: rgba(128, 128, 128, 0.3)`
+const getDividerBackgroundBoxStyles = (dataTableContainer: DataTableContainer) => {
+  return `width: 1px; height: 100%; background-color: ${
+    isDarkThemeActive(dataTableContainer) ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
+  }`
 }
 
 // logs
