@@ -1,13 +1,32 @@
 {
-  "name": "vuetify-data-table-resizable-columns",
-  "version": "0.1.0",
-  "private": true,
-  "main": "./dist/vuetify-data-table-resizable-columns.common.js",
+  "name": "@spacebnd/vuetify-data-table-resizable-columns",
+  "version": "1.0.0",
+  "author": {
+    "name": "Vitaly Petrovich",
+    "url": "https://github.com/spacebnd"
+  },
+  "description": "resizable columns directive for vuetify data tables",
+  "keywords": [
+    "vuetify resizable columns",
+    "vueitify data table"
+  ],
+  "license": "MIT",
+  "main": "dist/vuetify-data-table-resizable-columns.common.js",
+  "types": "src/lib/types.d.ts",
+  "files": [
+    "dist/*.js",
+    "src/*"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spacebnd/vuetify-data-table-resizable-columns.git"
+  },
+  "private": false,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "build-lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns ./src/main.ts",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build:lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns ./src/main.ts"
   },
   "dependencies": {
     "@types/resize-observer-browser": "^0.1.6",

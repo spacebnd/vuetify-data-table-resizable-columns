@@ -12,6 +12,9 @@
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outFile": "src/lib/types.js",
     "types": [
       "webpack-env",
       "@types/resize-observer-browser"
@@ -31,11 +34,9 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
+    "src/**/*.vue"
   ],
   "exclude": [
     "node_modules"
-  ]
+  ],
 }

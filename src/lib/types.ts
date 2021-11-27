@@ -60,3 +60,6 @@ export interface DataTableHeader<T extends any = any> {
 type DataTableCompareFunction<T = any> = (a: T, b: T) => number
 
 export type MessageType = 'info' | 'error'
+
+// types.d.ts are temporarily not supplied with the library
+// https://stackoverflow.com/questions/69942209/typescript-declaration-files-d-ts-not-found-is-not-a-module
