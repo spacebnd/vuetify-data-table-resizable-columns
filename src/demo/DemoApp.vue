@@ -23,9 +23,10 @@
     </v-app-bar>
 
     <v-main>
-      <v-container class="my-5">
+      <div class="wrapper">
         <DataTable />
-      </v-container>
+        <VisualizationScreen />
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -33,9 +34,10 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import DataTable from '@/demo/components/DataTable.vue'
+import VisualizationScreen from '@/demo/components/VisualizationScreen.vue'
 
 @Component({
-  components: { DataTable },
+  components: { VisualizationScreen, DataTable },
 })
 export default class App extends Vue {}
 </script>
@@ -47,5 +49,16 @@ export default class App extends Vue {}
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  max-width: 80%;
+  margin: 0 auto;
+  padding: 20px 0;
 }
 </style>

@@ -1,11 +1,13 @@
 <template>
-  <v-data-table
-    v-resizable-columns="userOption"
-    :headers="headersArr"
-    :items="itemsArr"
-    dense
-    class="elevation-3"
-  ></v-data-table>
+  <div class="data-table__container">
+    <v-data-table
+      v-resizable-columns="userOption"
+      :headers="headersArr"
+      :items="itemsArr"
+      class="elevation-3"
+      dense
+    ></v-data-table>
+  </div>
 </template>
 
 <script lang="ts">
@@ -78,3 +80,10 @@ export default class App extends Vue {
   ]
 }
 </script>
+
+<style>
+.data-table__container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+</style>
