@@ -402,6 +402,7 @@ const getDividerBackgroundBoxStyles = (dataTableContainer: DataTableContainer) =
 }
 
 // logs
+export const messages: string[] = []
 export const showMessage = (type: MessageType, text: string, visibleForUser = false): void => {
   if (!visibleForUser && !IS_DEBUG) return
 
@@ -410,5 +411,11 @@ export const showMessage = (type: MessageType, text: string, visibleForUser = fa
     console.log(message)
   } else if (type === 'error') {
     console.error(message)
+  }
+
+  if (process.env.VUE_APP_MODE === 'demo') {
+    const numberOfAccumulatedMessages = 20
+    messages.unshift(message)
+    if (messages.length > numberOfAccumulatedMessages) messages.pop()
   }
 }

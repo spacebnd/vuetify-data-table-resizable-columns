@@ -23,9 +23,9 @@
   "main": "dist/lib/vuetify-data-table-resizable-columns.common.js",
   "types": "src/lib/types.d.ts",
   "scripts": {
-    "serve:demo": "vue-cli-service serve src/demo/main.ts",
+    "serve:demo": "vue-cli-service serve src/demo/main.ts --mode demo",
     "build:lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns src/lib/main.ts --dest dist/lib --report",
-    "build:demo": "vue-cli-service build src/demo/main.ts --dest dist/demo --report"
+    "build:demo": "vue-cli-service build src/demo/main.ts --dest dist/demo --mode demo --report"
   },
   "dependencies": {
     "@types/resize-observer-browser": "^0.1.6",

@@ -44,6 +44,8 @@ export default class App extends Vue {}
 
 <style>
 #app {
+  height: 100vh;
+  overflow: hidden;
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -56,9 +58,13 @@ export default class App extends Vue {}
   justify-content: center;
   flex-direction: column;
   align-items: center;
-  height: 100%;
   max-width: 80%;
   margin: 0 auto;
   padding: 20px 0;
+}
+
+h1 {
+  font-size: 14px;
+  margin-bottom: 5px;
 }
 </style>

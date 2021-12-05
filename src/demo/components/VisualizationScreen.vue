@@ -1,7 +1,7 @@
 <template>
   <div class="visualization-screen__container elevation-3">
-    <ComponentDataBlock />
     <MessagesBlock />
+    <ComponentDataBlock />
   </div>
 </template>
 
@@ -20,6 +20,8 @@ export default class VisualizationScreen extends Vue {}
 .visualization-screen__container {
   display: flex;
   flex: 1;
+  min-height: 40vh;
+  max-height: 40vh;
   width: 100%;
 }
 </style>

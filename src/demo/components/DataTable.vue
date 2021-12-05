@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+import { Vue, Component } from 'vue-property-decorator'
 import { DataTableHeader } from 'vuetify'
 import { UserOption } from '@/lib/types'
 import { DesertItem } from '@/demo/types'
@@ -19,6 +19,7 @@ import { DesertItem } from '@/demo/types'
 @Component({})
 export default class App extends Vue {
   userOption: UserOption = 'debug'
+
   headersArr: DataTableHeader[] = [
     { text: 'Dessert (100g serving)', value: 'name' },
     { text: 'Calories', value: 'calories' },
