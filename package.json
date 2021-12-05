@@ -11,23 +11,25 @@
     "url": "https://github.com/spacebnd"
   },
   "license": "MIT",
+  "homepage": "https://spacebnd.github.io/vuetify-data-table-resizable-columns",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/spacebnd/vuetify-data-table-resizable-columns.git"
   },
   "private": false,
   "files": [
-    "dist/lib/*.js",
+    "dist",
     "src/lib/*"
   ],
-  "main": "dist/lib/vuetify-data-table-resizable-columns.common.js",
+  "main": "dist/vuetify-data-table-resizable-columns.common.js",
   "types": "src/lib/types.d.ts",
   "scripts": {
     "serve:demo": "vue-cli-service serve src/demo/main.ts --mode demo",
-    "build:lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns src/lib/main.ts --dest dist/lib --report",
-    "build:demo": "vue-cli-service build src/demo/main.ts --dest dist/demo --mode demo --report"
+    "build:lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns src/lib/main.ts --dest dist --report",
+    "build:demo": "vue-cli-service build src/demo/main.ts --dest src/demo/dist --mode demo --report"
   },
   "dependencies": {
+    "@spacebnd/vuetify-data-table-resizable-columns": "^1.0.16",
     "@types/resize-observer-browser": "^0.1.6",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
