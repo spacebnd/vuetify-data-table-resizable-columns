@@ -1,10 +1,13 @@
 {
   "name": "@spacebnd/vuetify-data-table-resizable-columns",
   "version": "1.0.0",
-  "description": "resizable columns directive for vuetify data tables",
+  "description": "resizable columns vue directive for vuetify v-data-table",
   "keywords": [
-    "vuetify resizable columns",
-    "vueitify data table"
+    "resizable columns",
+    "vuetify",
+    "data table",
+    "v-data-table",
+    "vue directive"
   ],
   "author": {
     "name": "Vitaly Petrovich",

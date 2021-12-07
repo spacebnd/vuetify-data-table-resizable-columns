@@ -1,24 +1,111 @@
 # vuetify-data-table-resizable-columns
 
-## Project setup
+Resizable columns Vue directive for [Vuetify](https://github.com/vuetifyjs/vuetify) v-data-table
+
+---
+
+### Demo
+
+![demo](./src/demo/assets/demo.gif)
+
+#### [Online Visualization](https://spacebnd.github.io/vuetify-data-table-resizable-columns/)
+
+---
+
+### Install
+```shell
+npm install @spacebnd/vuetify-data-table-resizable-columns
 ```
-npm install
+### Registration
+```javascript
+// main.js
+
+import vuetify from '@/plugins/vuetify'
+import ResizableColumns from '@spacebnd/vuetify-data-table-resizable-columns'
+
+Vue.use(ResizableColumns)
+
+new Vue({
+  vuetify,
+  render: (h) => h(App),
+}).$mount('#app')
+```
+---
+
+### Usage
+```vue
+<template>
+  <v-data-table 
+    v-resizable-columns 
+    :headers="headersArr" 
+    :items="itemsArr"
+  >
+  </v-data-table>
+</template>
+```
+### Options
+Expects: `string`  
+Available values: `'redraw'` `'debug'`
+
+#### Examples
+```vue
+# debug
+
+<template>
+  <v-data-table 
+    v-resizable-columns="option" 
+    :headers="headersArr" 
+    :items="itemsArr"
+  >
+  </v-data-table>
+</template>
+
+<script>
+export default {
+  data () {
+    return {
+      option: 'debug'
+    }
+  }
+}
+// debug messages will be shown to the console
+</script>
+
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+```vue
+# redraw
 
-### Compiles and minifies for production
-```
-npm run build
-```
+<template>
+  <v-data-table 
+    v-resizable-columns="option" 
+    :headers="headersArr" 
+    :items="itemsArr"
+  >
+  </v-data-table>
+</template>
 
-### Lints and fixes files
+<script>
+  export default {
+    data () {
+      return {
+        option: null
+      }
+    },
+    watch: {
+      someProperty: function (val) {
+        if (val > someConditionRequiringRedrawing) {
+          this.option = 'redraw'
+          // after redrawing, the 'option' property will be automatically assigned 'null', 
+          // which makes it possible to use it an unlimited number of times
+        }
+      },
+    }
+  }
+</script>
 ```
-npm run lint
-```
+---
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### License
+
+[MIT](https://github.com/spacebnd/vuetify-data-table-resizable-columns/blob/main/LICENSE.md)
