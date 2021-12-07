@@ -78,7 +78,7 @@ export default class ComponentDataBlock extends Vue {
 }
 
 .component-header p {
-  margin: 10px 0;
+  margin: 5px 0;
   font-size: 12px;
   font-family: Courier, monospace;
   text-align: left;
