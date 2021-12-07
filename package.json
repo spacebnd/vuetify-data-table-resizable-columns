@@ -29,7 +29,6 @@
     "build:demo": "vue-cli-service build src/demo/main.ts --dest src/demo/dist --mode demo --report"
   },
   "dependencies": {
-    "@spacebnd/vuetify-data-table-resizable-columns": "^1.0.16",
     "@types/resize-observer-browser": "^0.1.6",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
