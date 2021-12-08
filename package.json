@@ -1,6 +1,6 @@
 {
   "name": "@spacebnd/vuetify-data-table-resizable-columns",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "resizable columns vue directive for vuetify v-data-table",
   "keywords": [
     "resizable columns",
@@ -21,15 +21,15 @@
   },
   "private": false,
   "files": [
-    "dist",
+    "dist/*.js",
     "src/lib/*"
   ],
   "main": "dist/vuetify-data-table-resizable-columns.common.js",
   "types": "src/lib/types.d.ts",
   "scripts": {
     "serve:demo": "vue-cli-service serve src/demo/main.ts --mode demo",
-    "build:lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns src/lib/main.ts --dest dist --report",
-    "build:demo": "vue-cli-service build src/demo/main.ts --dest src/demo/dist --mode demo --report"
+    "build:lib": "vue-cli-service build --target lib --name vuetify-data-table-resizable-columns src/lib/main.ts --dest dist",
+    "build:demo": "vue-cli-service build src/demo/main.ts --dest src/demo/dist --mode demo"
   },
   "dependencies": {
     "@types/resize-observer-browser": "^0.1.6",

@@ -6,7 +6,7 @@ Resizable columns Vue directive for [Vuetify](https://github.com/vuetifyjs/vueti
 
 ### Demo
 
-![demo](./src/demo/assets/demo.gif)
+![demo](https://raw.githubusercontent.com/spacebnd/vuetify-data-table-resizable-columns/main/src/demo/assets/demo.gif)
 
 #### [Online Visualization](https://spacebnd.github.io/vuetify-data-table-resizable-columns/)
 
