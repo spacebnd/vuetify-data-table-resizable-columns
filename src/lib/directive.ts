@@ -20,7 +20,7 @@ const directive: DirectiveOptions = {
     if (userOption === 'debug') {
       setIsDebug(true)
     }
-    showMessage('info', `Environment: ${process.env}`, false)
+    showMessage('info', `Environment: ${JSON.stringify(process.env)}`, false)
     showMessage('info', 'Inserted', false)
 
     if (!isDataTableElement(el)) {
