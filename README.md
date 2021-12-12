@@ -45,7 +45,7 @@ new Vue({
 ```
 ### Options
 Expects: `string`  
-Available values: `'redraw'` `'debug'`
+Available values: `'debug'` `'redraw'`
 
 #### Examples
 ```vue
