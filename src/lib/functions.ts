@@ -1,20 +1,29 @@
-import {
-  CLASSES,
-  DEFAULT_HEADER_MIN_WIDTH,
-  INDENT_TO_NATIVE_VUETIFY_DIVIDER,
-  IS_DEBUG,
-} from '@/lib/constants'
-import type { VNode } from 'vue'
+import type { Vue } from '@/lib/types/vue2/vue'
+import type { VNode as VNodeVue2 } from '@/lib/types/vue2/vnode'
 import type {
-  Binding,
+  ComponentPublicInstance,
+  DirectiveBinding as DirectiveBindingVue3,
+  VNode as VNodeVue3,
+} from '@/lib/types/vue3/runtime-core'
+import type {
+  DirectiveHookNames,
+  DirectiveBindingVue2,
   Controller,
   ControllerInstance,
+  UserOption,
+  MessageType,
+  Divider,
   DataTableContainer,
   DataTableHeader,
   DataTableProps,
-  Divider,
-  MessageType,
-} from '@/lib/types'
+} from '@/lib/types/common'
+import {
+  VUE_VERSION,
+  IS_DEBUG,
+  CLASSES,
+  DEFAULT_HEADER_MIN_WIDTH,
+  INDENT_TO_NATIVE_VUETIFY_DIVIDER,
+} from '@/lib/constants'
 
 // controller
 const generateController = (): ControllerInstance => {
@@ -38,9 +47,58 @@ const generateController = (): ControllerInstance => {
 }
 
 // core
+export const getDirectiveHookNames = (): DirectiveHookNames => {
+  const [major] = VUE_VERSION.split('.')
+  const isVue3 = +major === 3
+
+  return {
+    mounted: isVue3 ? 'mounted' : 'inserted',
+    updated: isVue3 ? 'updated' : 'update',
+    unmounted: isVue3 ? 'unmounted' : 'unbind',
+  }
+}
+export const getUserOptionValue = (
+  binding: DirectiveBindingVue2 | DirectiveBindingVue3
+): UserOption => {
+  if (isVue3()) {
+    return (binding as DirectiveBindingVue3).instance[binding.arg!]
+  } else {
+    return (binding as DirectiveBindingVue2).value!
+  }
+}
+
+export const getUserOptionPropertyName = (
+  binding: DirectiveBindingVue2 | DirectiveBindingVue3
+): string => {
+  if (isVue3()) {
+    return (binding as DirectiveBindingVue3).arg!
+  } else {
+    return (binding as DirectiveBindingVue2).expression!
+  }
+}
+
+export const getComponentInstance = (
+  binding: DirectiveBindingVue2 | DirectiveBindingVue3,
+  vnode: VNodeVue2 | VNodeVue3
+): ComponentPublicInstance | Vue => {
+  if (isVue3()) {
+    return (binding as DirectiveBindingVue3).instance
+  } else {
+    return (vnode as VNodeVue2).context
+  }
+}
+
+const getDataTableProps = (vnode: VNodeVue2 | VNodeVue3): DataTableProps => {
+  if (isVue3()) {
+    return (vnode as VNodeVue3).props as DataTableProps
+  } else {
+    return (vnode as VNodeVue2).componentOptions?.propsData as DataTableProps
+  }
+}
+
 export const resizeObserverHandler = (
-  binding: Binding,
-  vnode: VNode,
+  binding: DirectiveBindingVue2 | DirectiveBindingVue3,
+  vnode: VNodeVue2 | VNodeVue3,
   entries: ResizeObserverEntry[],
   observer: ResizeObserver
 ): void => {
@@ -48,7 +106,7 @@ export const resizeObserverHandler = (
   showMessage('info', `Resize detected`, false)
 
   if (isDataTableReady(el, vnode)) {
-    drawColumnDividers(el, <Binding>binding, vnode)
+    drawColumnDividers(el, <DirectiveBindingVue2 | DirectiveBindingVue3>binding, vnode)
   }
 
   showMessage('info', 'Observing finished', false)
@@ -56,8 +114,8 @@ export const resizeObserverHandler = (
 }
 
 const generateAdditionalDataTableProps = (
-  vnode: VNode,
-  binding: Binding,
+  vnode: VNodeVue2 | VNodeVue3,
+  binding: DirectiveBindingVue2 | DirectiveBindingVue3,
   controller: ControllerInstance
 ): void => {
   try {
@@ -101,8 +159,8 @@ const generateAdditionalDataTableProps = (
 
 export const drawColumnDividers = (
   dataTableContainer: DataTableContainer,
-  binding: Binding,
-  vnode: VNode
+  binding: DirectiveBindingVue2 | DirectiveBindingVue3,
+  vnode: VNodeVue2 | VNodeVue3
 ): void => {
   showMessage('info', 'Drawing of dividers started...', false)
 
@@ -127,8 +185,8 @@ export const drawColumnDividers = (
     dividersContainer.setAttribute('style', getDividersContainerStyles(dataTableContainer))
     tableWrapper?.prepend(dividersContainer)
 
-    const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
-    const dataTableHeaders = <DataTableHeader[]>dataTableProps.headers
+    const dataTableProps: DataTableProps = getDataTableProps(vnode)
+    const dataTableHeaders: DataTableHeader[] = dataTableProps.headers
 
     const controller: ControllerInstance = generateController()
     controller.set('binding', binding)
@@ -223,8 +281,8 @@ const mouseUpHandler = (controller: ControllerInstance): void => {
 
     drawColumnDividers(
       <DataTableContainer>controller.get('dataTableContainer'),
-      <Binding>controller.get('binding'),
-      <VNode>controller.get('vnode')
+      <DirectiveBindingVue2 | DirectiveBindingVue3>controller.get('binding'),
+      <VNodeVue2 | VNodeVue3>controller.get('vnode')
     )
     toggleMovingStyles(false, controller)
 
@@ -301,6 +359,11 @@ export const removeListeners = (dataTableContainer: DataTableContainer): void =>
 }
 
 // checks
+export const isVue3 = (version?: string): boolean => {
+  const [major] = version ? version : VUE_VERSION.split('.')
+  return +major === 3
+}
+
 export const isDataTableElement = (element: HTMLElement): boolean => {
   return Array.from(element.classList).includes(CLASSES.DATA_TABLE)
 }
@@ -313,9 +376,12 @@ const isDarkThemeActive = (dataTableContainer: DataTableContainer): boolean => {
   return Array.from(dataTableContainer.classList).includes(CLASSES.DATA_TABLE_DARK_THEME)
 }
 
-export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean => {
-  const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
-  const oldDataTableProps = <DataTableProps>oldVnode.componentOptions?.propsData
+export const isDataTablePropsChanged = (
+  vnode: VNodeVue2 | VNodeVue3,
+  oldVnode: VNodeVue2 | VNodeVue3
+): boolean => {
+  const dataTableProps: DataTableProps = getDataTableProps(vnode)
+  const oldDataTableProps: DataTableProps = getDataTableProps(oldVnode)
 
   const isHeadersChanged = dataTableProps.headers.length !== oldDataTableProps.headers.length
   const isItemsChanged = dataTableProps.items.length !== oldDataTableProps.items.length
@@ -323,9 +389,12 @@ export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean 
   return isHeadersChanged || isItemsChanged
 }
 
-export const isDataTableReady = (dataTableContainer: DataTableContainer, vnode: VNode): boolean => {
+export const isDataTableReady = (
+  dataTableContainer: DataTableContainer,
+  vnode: VNodeVue2 | VNodeVue3
+): boolean => {
   const tableHeadRow = <HTMLTableRowElement>dataTableContainer.querySelector('tr')
-  const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
+  const dataTableProps: DataTableProps = getDataTableProps(vnode)
 
   const isDataTableHeadersExist = !!dataTableProps.headers.length
   const isDataTableItemsExist = !!dataTableProps.items.length

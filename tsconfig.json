@@ -14,7 +14,7 @@
     "baseUrl": ".",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "outFile": "src/lib/types.js",
+    "outFile": "src/lib/types/types.js",
     "types": [
       "webpack-env",
       "@types/resize-observer-browser"

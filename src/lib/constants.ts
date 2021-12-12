@@ -12,7 +12,11 @@ export const CLASSES = {
 export const DEFAULT_HEADER_MIN_WIDTH = 80 // px
 export const INDENT_TO_NATIVE_VUETIFY_DIVIDER = 11 // px
 export let IS_DEBUG = false
+export let VUE_VERSION = ''
 
 export const setIsDebug = (value: boolean): void => {
   IS_DEBUG = value
+}
+export const setVueVersion = (value: string): void => {
+  VUE_VERSION = value
 }

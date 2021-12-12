@@ -13,7 +13,7 @@
 <script lang="ts">
 import { Vue, Component } from 'vue-property-decorator'
 import { DataTableHeader } from 'vuetify'
-import { UserOption } from '@/lib/types'
+import { UserOption } from '@/lib/types/common'
 import { DesertItem } from '@/demo/types'
 
 @Component({})
