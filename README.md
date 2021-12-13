@@ -2,13 +2,7 @@
 
 Resizable columns Vue directive for [Vuetify](https://github.com/vuetifyjs/vuetify) v-data-table
 
----
-
-### Demo
-
-![demo](https://raw.githubusercontent.com/spacebnd/vuetify-data-table-resizable-columns/main/src/demo/assets/demo.gif)
-
-#### [Online Visualization](https://spacebnd.github.io/vuetify-data-table-resizable-columns/)
+#### [Online Demo](https://spacebnd.github.io/vuetify-data-table-resizable-columns/)
 
 ---
 
