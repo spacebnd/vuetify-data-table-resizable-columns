@@ -13,6 +13,7 @@ export interface Controller {
   vnode: VNode | null
   dataTableContainer: HTMLDivElement | null
   dataTableHeaders: DataTableHeader[] | null
+  dataTableProps: DataTableProps | null
   thsArray: HTMLTableHeaderCellElement[] | null
   dividersArray: HTMLDivElement[] | null
   isMoving: boolean

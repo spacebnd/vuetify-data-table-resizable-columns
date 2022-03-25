@@ -1,6 +1,6 @@
 {
   "name": "@spacebnd/vuetify-data-table-resizable-columns",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "resizable columns vue directive for vuetify v-data-table",
   "keywords": [
     "resizable columns",

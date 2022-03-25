@@ -23,6 +23,7 @@ const generateController = (): ControllerInstance => {
     vnode: null,
     dataTableContainer: null,
     dataTableHeaders: null,
+    dataTableProps: null,
     thsArray: null,
     dividersArray: null,
     isMoving: false,
@@ -63,10 +64,13 @@ const generateAdditionalDataTableProps = (
   try {
     const thsArray = <HTMLTableHeaderCellElement[]>controller.get('thsArray')
     const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
+    const dataTableProps = <DataTableProps>controller.get('dataTableProps')
 
     dataTableHeaders.forEach((header: DataTableHeader, index: number) => {
+      const targetIndex = isPropActive('showSelect', dataTableProps) ? index + 1 : index
+
       if (!header.width) {
-        header.width = thsArray[index].offsetWidth
+        header.width = thsArray[targetIndex].offsetWidth
       } else if (typeof header.width === 'string' && header.class !== CLASSES.EMPTY_COLUMN) {
         header.width = +header.width
       }
@@ -135,6 +139,7 @@ export const drawColumnDividers = (
     controller.set('vnode', vnode)
     controller.set('dataTableContainer', dataTableContainer)
     controller.set('dataTableHeaders', dataTableHeaders)
+    controller.set('dataTableProps', dataTableProps)
     controller.set('thsArray', thsArray)
 
     generateAdditionalDataTableProps(vnode, binding, controller)
@@ -150,18 +155,25 @@ export const drawColumnDividers = (
         continue
       }
 
-      const nextTh: HTMLTableHeaderCellElement = thsArray[index + 1]
-      const divider: Divider = document.createElement('div')
-      divider.classList.add(CLASSES.DIVIDER)
-      const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
+      if (isPropActive('showSelect', dataTableProps) && index === 0) {
+        thsArray[index].style.width = '55px'
+      } else {
+        const nextTh: HTMLTableHeaderCellElement = thsArray[index + 1]
+        const divider: Divider = document.createElement('div')
+        divider.classList.add(CLASSES.DIVIDER)
+        const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
 
-      divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
-      dividerBackgroundBox.setAttribute('style', getDividerBackgroundBoxStyles(dataTableContainer))
+        divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
+        dividerBackgroundBox.setAttribute(
+          'style',
+          getDividerBackgroundBoxStyles(dataTableContainer)
+        )
 
-      divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
-      divider.addEventListener('mousedown', divider.dividerMouseDownHandler)
-      divider.append(dividerBackgroundBox)
-      dividersContainer.append(divider)
+        divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
+        divider.addEventListener('mousedown', divider.dividerMouseDownHandler)
+        divider.append(dividerBackgroundBox)
+        dividersContainer.append(divider)
+      }
     }
 
     const tdsList: NodeListOf<HTMLTableDataCellElement> = dataTableContainer.querySelectorAll('td')
@@ -313,6 +325,10 @@ const isDarkThemeActive = (dataTableContainer: DataTableContainer): boolean => {
   return Array.from(dataTableContainer.classList).includes(CLASSES.DATA_TABLE_DARK_THEME)
 }
 
+const isPropActive = (propName: string, dataTableProps: DataTableProps): boolean => {
+  return propName in dataTableProps
+}
+
 export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean => {
   const dataTableProps = <DataTableProps>vnode.componentOptions?.propsData
   const oldDataTableProps = <DataTableProps>oldVnode.componentOptions?.propsData
@@ -366,10 +382,12 @@ const setEllipsisStyles = (payload: HTMLElement | HTMLElement[]): void => {
     payload.forEach((element) => {
       element.style.overflow = 'hidden'
       element.style.textOverflow = 'ellipsis'
+      element.style.whiteSpace = 'nowrap'
     })
   } else {
     payload.style.overflow = 'hidden'
     payload.style.textOverflow = 'ellipsis'
+    payload.style.whiteSpace = 'nowrap'
   }
 }
 
