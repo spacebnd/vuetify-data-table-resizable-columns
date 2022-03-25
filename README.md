@@ -4,7 +4,7 @@ Resizable columns Vue directive for [Vuetify](https://github.com/vuetifyjs/vueti
 
 #### [Online Demo](https://spacebnd.github.io/vuetify-data-table-resizable-columns/)
 
----
+--- 
 
 ### Install
 ```shell
@@ -98,6 +98,9 @@ export default {
   }
 </script>
 ```
+
+> **NOTE:**  Possible incorrect behavior when using props that change the table structure
+
 ---
 
 ### License
