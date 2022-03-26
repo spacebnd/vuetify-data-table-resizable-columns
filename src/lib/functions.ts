@@ -67,10 +67,10 @@ const generateAdditionalDataTableProps = (
     const dataTableProps = <DataTableProps>controller.get('dataTableProps')
 
     dataTableHeaders.forEach((header: DataTableHeader, index: number) => {
-      const targetIndex = isPropActive('showSelect', dataTableProps) ? index + 1 : index
+      const thIndex = isPropActive('showSelect', dataTableProps) ? index + 1 : index
 
       if (!header.width) {
-        header.width = thsArray[targetIndex].offsetWidth
+        header.width = thsArray[thIndex].offsetWidth
       } else if (typeof header.width === 'string' && header.class !== CLASSES.EMPTY_COLUMN) {
         header.width = +header.width
       }
@@ -149,31 +149,29 @@ export const drawColumnDividers = (
     ).includes(CLASSES.EMPTY_COLUMN)
 
     for (let index = 0; index < thsArray.length - 1; index++) {
+      if (isPropActive('showSelect', dataTableProps) && index === 0) {
+        thsArray[index].style.width = '55px'
+        continue
+      }
+
       setEllipsisStyles([thsArray[index]])
 
       if (index === thsArray.length - 2 && isEmptyColumnExist) {
         continue
       }
 
-      if (isPropActive('showSelect', dataTableProps) && index === 0) {
-        thsArray[index].style.width = '55px'
-      } else {
-        const nextTh: HTMLTableHeaderCellElement = thsArray[index + 1]
-        const divider: Divider = document.createElement('div')
-        divider.classList.add(CLASSES.DIVIDER)
-        const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
+      const nextTh: HTMLTableHeaderCellElement = thsArray[index + 1]
+      const divider: Divider = document.createElement('div')
+      divider.classList.add(CLASSES.DIVIDER)
+      const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
 
-        divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
-        dividerBackgroundBox.setAttribute(
-          'style',
-          getDividerBackgroundBoxStyles(dataTableContainer)
-        )
+      divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
+      dividerBackgroundBox.setAttribute('style', getDividerBackgroundBoxStyles(dataTableContainer))
 
-        divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
-        divider.addEventListener('mousedown', divider.dividerMouseDownHandler)
-        divider.append(dividerBackgroundBox)
-        dividersContainer.append(divider)
-      }
+      divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
+      divider.addEventListener('mousedown', divider.dividerMouseDownHandler)
+      divider.append(dividerBackgroundBox)
+      dividersContainer.append(divider)
     }
 
     const tdsList: NodeListOf<HTMLTableDataCellElement> = dataTableContainer.querySelectorAll('td')
@@ -228,6 +226,36 @@ const mouseDownHandler = (
   }
 }
 
+const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void => {
+  try {
+    if (controller.get('isMoving')) {
+      const startPageXPosition = <number>controller.get('startPageXPosition')
+      const startMovingThWidth = <number>controller.get('startMovingThWidth')
+      const movingTh = <HTMLTableHeaderCellElement>controller.get('movingTh')
+      const movingDividerIndex = <number>controller.get('movingDividerIndex')
+      const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
+      const dataTableProps = <DataTableProps>controller.get('dataTableProps')
+
+      const differenceFromStartPageXPosition: number = event.pageX - startPageXPosition
+      const movingThNewWidth: number = startMovingThWidth + differenceFromStartPageXPosition
+      const movingHeaderMinWidth = <number>dataTableHeaders[movingDividerIndex]?.minWidth
+
+      if (differenceFromStartPageXPosition && movingThNewWidth >= movingHeaderMinWidth) {
+        movingTh.style.width = movingThNewWidth + 'px'
+        movingTh.style.minWidth = 'auto'
+        const targetDataTableHeaderIndex = isPropActive('showSelect', dataTableProps)
+          ? movingDividerIndex - 1
+          : movingDividerIndex
+        dataTableHeaders[targetDataTableHeaderIndex].width = movingThNewWidth
+
+        showMessage('info', `Changed width for <th> with index ${movingDividerIndex}`, false)
+      }
+    }
+  } catch (error) {
+    showMessage('error', `resizeHandler: ${error}`, false)
+  }
+}
+
 const mouseUpHandler = (controller: ControllerInstance): void => {
   try {
     if (!controller.get('isMoving')) return
@@ -242,40 +270,17 @@ const mouseUpHandler = (controller: ControllerInstance): void => {
 
     const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
     const thsArray = <HTMLTableHeaderCellElement[]>controller.get('thsArray')
+    const dataTableProps = <DataTableProps>controller.get('dataTableProps')
+
     dataTableHeaders.forEach((header, index) => {
       if (header.class !== CLASSES.EMPTY_COLUMN) {
-        header.width = thsArray[index].offsetWidth
+        const targetThIndex = isPropActive('showSelect', dataTableProps) ? index + 1 : index
+        header.width = thsArray[targetThIndex].offsetWidth
       }
     })
     showMessage('info', 'Updated array of headers in the component', false)
   } catch (error) {
     showMessage('error', `mouseUpHandler: ${error}` + error, false)
-  }
-}
-
-const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void => {
-  try {
-    if (controller.get('isMoving')) {
-      const startPageXPosition = <number>controller.get('startPageXPosition')
-      const startMovingThWidth = <number>controller.get('startMovingThWidth')
-      const movingTh = <HTMLTableHeaderCellElement>controller.get('movingTh')
-      const movingDividerIndex = <number>controller.get('movingDividerIndex')
-      const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
-
-      const differenceFromStartPageXPosition: number = event.pageX - startPageXPosition
-      const movingThNewWidth: number = startMovingThWidth + differenceFromStartPageXPosition
-      const movingHeaderMinWidth = <number>dataTableHeaders[movingDividerIndex]?.minWidth
-
-      if (differenceFromStartPageXPosition && movingThNewWidth >= movingHeaderMinWidth) {
-        movingTh.style.width = movingThNewWidth + 'px'
-        movingTh.style.minWidth = 'auto'
-        dataTableHeaders[movingDividerIndex].width = movingThNewWidth
-
-        showMessage('info', `Changed width for <th> with index ${movingDividerIndex}`, false)
-      }
-    }
-  } catch (error) {
-    showMessage('error', `resizeHandler: ${error}`, false)
   }
 }
 
@@ -326,7 +331,8 @@ const isDarkThemeActive = (dataTableContainer: DataTableContainer): boolean => {
 }
 
 const isPropActive = (propName: string, dataTableProps: DataTableProps): boolean => {
-  return propName in dataTableProps
+  // @ts-ignore
+  return propName in dataTableProps && dataTableProps[propName] !== false
 }
 
 export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean => {
