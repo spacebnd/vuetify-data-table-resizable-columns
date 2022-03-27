@@ -1,8 +1,8 @@
 import {
-  ADDITIONAL_START_HEADER_WIDTH,
   CLASSES,
   DEFAULT_HEADER_MIN_WIDTH,
   INDENT_TO_NATIVE_VUETIFY_DIVIDER,
+  ADDITIONAL_COLUMN_WIDTH,
   IS_DEBUG,
 } from '@/lib/constants'
 import type { VNode } from 'vue'
@@ -64,8 +64,12 @@ const generateAdditionalDataTableProps = (vnode: VNode, binding: Binding, contro
     const dataTableProps = <DataTableProps>controller.get('dataTableProps')
 
     dataTableHeaders.forEach((header: DataTableHeader, index: number) => {
-      const thIndex =
-        isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps) ? index + 1 : index
+      let thIndex = index
+      if (isOnlyOneAdditionalColumnExists(dataTableProps)) {
+        thIndex += 1
+      } else if (isTwoAdditionalColumnsExists(dataTableProps)) {
+        thIndex += 2
+      }
 
       if (!header.width) {
         header.width = thsArray[thIndex].offsetWidth
@@ -136,8 +140,11 @@ export const drawColumnDividers = (dataTableContainer: DataTableContainer, bindi
     )
 
     for (let index = 0; index < thsArray.length - 1; index++) {
-      if ((isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps)) && index === 0) {
-        thsArray[index].style.width = ADDITIONAL_START_HEADER_WIDTH + 'px'
+      if (
+        (isOnlyOneAdditionalColumnExists(dataTableProps) && index === 0) ||
+        (isTwoAdditionalColumnsExists(dataTableProps) && (index === 0 || index === 1))
+      ) {
+        thsArray[index].style.width = ADDITIONAL_COLUMN_WIDTH + 'px'
         continue
       }
 
@@ -224,10 +231,14 @@ const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void 
       if (differenceFromStartPageXPosition && movingThNewWidth >= movingHeaderMinWidth) {
         movingTh.style.width = movingThNewWidth + 'px'
         movingTh.style.minWidth = 'auto'
-        const targetDataTableHeaderIndex =
-          isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps)
-            ? movingDividerIndex - 1
-            : movingDividerIndex
+
+        let targetDataTableHeaderIndex = movingDividerIndex
+        if (isOnlyOneAdditionalColumnExists(dataTableProps)) {
+          targetDataTableHeaderIndex -= 1
+        } else if (isTwoAdditionalColumnsExists(dataTableProps)) {
+          targetDataTableHeaderIndex -= 2
+        }
+
         dataTableHeaders[targetDataTableHeaderIndex].width = movingThNewWidth
 
         showMessage('info', `Changed width for <th> with index ${movingDividerIndex}`, false)
@@ -256,8 +267,13 @@ const mouseUpHandler = (controller: ControllerInstance): void => {
 
     dataTableHeaders.forEach((header, index) => {
       if (header.class !== CLASSES.EMPTY_COLUMN) {
-        const targetThIndex =
-          isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps) ? index + 1 : index
+        let targetThIndex = index
+        if (isOnlyOneAdditionalColumnExists(dataTableProps)) {
+          targetThIndex += 1
+        } else if (isTwoAdditionalColumnsExists(dataTableProps)) {
+          targetThIndex += 2
+        }
+
         header.width = thsArray[targetThIndex].offsetWidth
       }
     })
@@ -305,6 +321,17 @@ const isDarkThemeActive = (dataTableContainer: DataTableContainer): boolean => {
 const isPropActive = (propName: string, dataTableProps: DataTableProps): boolean => {
   // @ts-ignore
   return propName in dataTableProps && dataTableProps[propName] !== false
+}
+
+const isOnlyOneAdditionalColumnExists = (dataTableProps: DataTableProps) => {
+  return (
+    (isPropActive('showSelect', dataTableProps) && !isPropActive('showExpand', dataTableProps)) ||
+    (!isPropActive('showSelect', dataTableProps) && isPropActive('showExpand', dataTableProps))
+  )
+}
+
+const isTwoAdditionalColumnsExists = (dataTableProps: DataTableProps) => {
+  return isPropActive('showSelect', dataTableProps) && isPropActive('showExpand', dataTableProps)
 }
 
 export const isDataTablePropsChanged = (vnode: VNode, oldVnode: VNode): boolean => {
