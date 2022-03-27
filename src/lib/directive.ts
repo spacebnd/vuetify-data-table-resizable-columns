@@ -1,7 +1,7 @@
 import type { DirectiveOptions, VNode } from 'vue'
 import type { DirectiveBinding } from 'vue/types/options'
-import { Binding, DataTableContainer, UserOption } from '@/lib/types'
-import { setIsDebug } from '@/lib/constants'
+import { Binding, DataTableContainer, DataTableProps, UserOption } from '@/lib/types'
+import { setIsDebug, UNSUPPORTED_PROPS } from '@/lib/constants'
 import {
   isDataTableElement,
   isMobile,
@@ -12,6 +12,7 @@ import {
   removeDividersContainer,
   removeListeners,
   showMessage,
+  isDataTableContainsUnsupportedProps,
 } from '@/lib/functions'
 
 const directive: DirectiveOptions = {
@@ -26,14 +27,13 @@ const directive: DirectiveOptions = {
     if (!isDataTableElement(el)) {
       showMessage('error', 'Directive should be applied to the v-data-table component', true)
       return
-    }
-
-    if (isMobile(el)) {
+    } else if (isMobile(el)) {
       showMessage('error', 'Directive is for desktop only', false)
       return
-    }
-
-    if (isDataTableReady(<DataTableContainer>el, vnode)) {
+    } else if (isDataTableContainsUnsupportedProps(<DataTableProps>vnode.componentOptions?.propsData)) {
+      showMessage('error', `Data table contains one of the unsupported props (${UNSUPPORTED_PROPS.join(', ')})`, false)
+      return
+    } else if (isDataTableReady(<DataTableContainer>el, vnode)) {
       drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
     }
   },

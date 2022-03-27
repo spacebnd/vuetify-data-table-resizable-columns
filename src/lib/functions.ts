@@ -3,6 +3,7 @@ import {
   DEFAULT_HEADER_MIN_WIDTH,
   INDENT_TO_NATIVE_VUETIFY_DIVIDER,
   ADDITIONAL_COLUMN_WIDTH,
+  UNSUPPORTED_PROPS,
   IS_DEBUG,
 } from '@/lib/constants'
 import type { VNode } from 'vue'
@@ -357,6 +358,10 @@ export const isDataTableReady = (dataTableContainer: DataTableContainer, vnode: 
 
 export const isMobile = (element: HTMLElement): boolean => {
   return element.className.includes(CLASSES.DATA_TABLE_MOBILE)
+}
+
+export const isDataTableContainsUnsupportedProps = (dataTableProps: DataTableProps): boolean => {
+  return Object.keys(dataTableProps).some((prop: string) => UNSUPPORTED_PROPS.includes(prop))
 }
 
 // styles
