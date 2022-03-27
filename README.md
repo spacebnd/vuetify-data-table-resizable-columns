@@ -89,7 +89,9 @@ export default {
     watch: {
       someProperty: function (val) {
         if (val > someConditionRequiringRedrawing) {
-          this.option = 'redraw'
+          this.$nextTick(() => {
+            this.option = 'redraw'
+          })
           // after redrawing, the 'option' property will be automatically assigned 'null', 
           // which makes it possible to use it an unlimited number of times
         }

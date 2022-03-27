@@ -18,7 +18,7 @@ import { DesertItem } from '@/demo/types'
 
 @Component({})
 export default class App extends Vue {
-  userOption: UserOption = null
+  userOption: UserOption = 'debug'
 
   headersArr: DataTableHeader[] = [
     { text: 'Dessert (100g serving)', value: 'name' },

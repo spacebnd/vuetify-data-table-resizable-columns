@@ -159,7 +159,7 @@ export const drawColumnDividers = (dataTableContainer: DataTableContainer, bindi
       divider.classList.add(CLASSES.DIVIDER)
       const dividerBackgroundBox: HTMLDivElement = document.createElement('div')
 
-      divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh))
+      divider.setAttribute('style', getDividerStyles(dataTableContainer, thead, nextTh, dataTableProps))
       dividerBackgroundBox.setAttribute('style', getDividerBackgroundBoxStyles(dataTableContainer))
 
       divider.dividerMouseDownHandler = mouseDownHandler.bind(null, index, controller)
@@ -323,14 +323,14 @@ const isPropActive = (propName: string, dataTableProps: DataTableProps): boolean
   return propName in dataTableProps && dataTableProps[propName] !== false
 }
 
-const isOnlyOneAdditionalColumnExists = (dataTableProps: DataTableProps) => {
+const isOnlyOneAdditionalColumnExists = (dataTableProps: DataTableProps): boolean => {
   return (
     (isPropActive('showSelect', dataTableProps) && !isPropActive('showExpand', dataTableProps)) ||
     (!isPropActive('showSelect', dataTableProps) && isPropActive('showExpand', dataTableProps))
   )
 }
 
-const isTwoAdditionalColumnsExists = (dataTableProps: DataTableProps) => {
+const isTwoAdditionalColumnsExists = (dataTableProps: DataTableProps): boolean => {
   return isPropActive('showSelect', dataTableProps) && isPropActive('showExpand', dataTableProps)
 }
 
@@ -405,9 +405,11 @@ const getDividersContainerStyles = (dataTableContainer: DataTableContainer): str
 const getDividerStyles = (
   dataTableContainer: DataTableContainer,
   thead: HTMLTableSectionElement,
-  nextTh: HTMLTableHeaderCellElement
-) => {
-  const dividerHeight = thead.offsetHeight + 'px'
+  nextTh: HTMLTableHeaderCellElement,
+  dataTableProps: DataTableProps
+): string => {
+  const additionalDividerHeight = isPropActive('caption', dataTableProps) ? getCaptionHeight(dataTableContainer) : 0
+  const dividerHeight = thead.offsetHeight + additionalDividerHeight + 'px'
   const dividerStep = nextTh.offsetLeft - INDENT_TO_NATIVE_VUETIFY_DIVIDER + 'px'
   const positionStyles = `position: absolute; top: 0; left: ${dividerStep}; height: ${dividerHeight};`
 
@@ -416,10 +418,15 @@ const getDividerStyles = (
   };`
 }
 
-const getDividerBackgroundBoxStyles = (dataTableContainer: DataTableContainer) => {
+const getDividerBackgroundBoxStyles = (dataTableContainer: DataTableContainer): string => {
   return `width: 1px; height: 100%; background-color: ${
     isDarkThemeActive(dataTableContainer) ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.12)'
   }`
+}
+
+const getCaptionHeight = (dataTableContainer: DataTableContainer): number => {
+  const caption = dataTableContainer.querySelector('caption')
+  return caption ? caption.offsetHeight : 0
 }
 
 // logs
