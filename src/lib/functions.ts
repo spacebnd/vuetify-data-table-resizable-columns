@@ -1,4 +1,5 @@
 import {
+  ADDITIONAL_START_HEADER_WIDTH,
   CLASSES,
   DEFAULT_HEADER_MIN_WIDTH,
   INDENT_TO_NATIVE_VUETIFY_DIVIDER,
@@ -56,18 +57,15 @@ export const resizeObserverHandler = (
   observer.disconnect()
 }
 
-const generateAdditionalDataTableProps = (
-  vnode: VNode,
-  binding: Binding,
-  controller: ControllerInstance
-): void => {
+const generateAdditionalDataTableProps = (vnode: VNode, binding: Binding, controller: ControllerInstance): void => {
   try {
     const thsArray = <HTMLTableHeaderCellElement[]>controller.get('thsArray')
     const dataTableHeaders = <DataTableHeader[]>controller.get('dataTableHeaders')
     const dataTableProps = <DataTableProps>controller.get('dataTableProps')
 
     dataTableHeaders.forEach((header: DataTableHeader, index: number) => {
-      const thIndex = isPropActive('showSelect', dataTableProps) ? index + 1 : index
+      const thIndex =
+        isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps) ? index + 1 : index
 
       if (!header.width) {
         header.width = thsArray[thIndex].offsetWidth
@@ -84,9 +82,7 @@ const generateAdditionalDataTableProps = (
       if (index === dataTableHeaders.length - 1) header.divider = false
     })
 
-    const emptyColumnIndex: number = dataTableHeaders.findIndex(
-      (header) => header.class === CLASSES.EMPTY_COLUMN
-    )
+    const emptyColumnIndex: number = dataTableHeaders.findIndex((header) => header.class === CLASSES.EMPTY_COLUMN)
     if (emptyColumnIndex === -1) {
       dataTableHeaders.push({
         class: CLASSES.EMPTY_COLUMN,
@@ -103,26 +99,17 @@ const generateAdditionalDataTableProps = (
   }
 }
 
-export const drawColumnDividers = (
-  dataTableContainer: DataTableContainer,
-  binding: Binding,
-  vnode: VNode
-): void => {
+export const drawColumnDividers = (dataTableContainer: DataTableContainer, binding: Binding, vnode: VNode): void => {
   showMessage('info', 'Drawing of dividers started...', false)
 
   try {
     removeDividersContainer(dataTableContainer)
     removeListeners(dataTableContainer)
 
-    const tableWrapper = <HTMLDivElement>(
-      dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_WRAPPER}`)
-    )
+    const tableWrapper = <HTMLDivElement>dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_WRAPPER}`)
     const table = <HTMLTableElement>tableWrapper.querySelector('table')
-    const thead = <HTMLTableSectionElement>(
-      dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_HEADER}`)
-    )
-    const thsCollection: HTMLCollectionOf<HTMLTableHeaderCellElement> =
-      thead.getElementsByTagName('th')
+    const thead = <HTMLTableSectionElement>dataTableContainer.querySelector(`.${CLASSES.DATA_TABLE_HEADER}`)
+    const thsCollection: HTMLCollectionOf<HTMLTableHeaderCellElement> = thead.getElementsByTagName('th')
     const thsArray: HTMLTableHeaderCellElement[] = Array.from(thsCollection)
     const dividersContainer: HTMLDivElement = document.createElement('div')
 
@@ -144,13 +131,13 @@ export const drawColumnDividers = (
 
     generateAdditionalDataTableProps(vnode, binding, controller)
 
-    const isEmptyColumnExist: boolean = Array.from(
-      thsArray[thsArray.length - 1].classList
-    ).includes(CLASSES.EMPTY_COLUMN)
+    const isEmptyColumnExist: boolean = Array.from(thsArray[thsArray.length - 1].classList).includes(
+      CLASSES.EMPTY_COLUMN
+    )
 
     for (let index = 0; index < thsArray.length - 1; index++) {
-      if (isPropActive('showSelect', dataTableProps) && index === 0) {
-        thsArray[index].style.width = '55px'
+      if ((isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps)) && index === 0) {
+        thsArray[index].style.width = ADDITIONAL_START_HEADER_WIDTH + 'px'
         continue
       }
 
@@ -177,9 +164,7 @@ export const drawColumnDividers = (
     const tdsList: NodeListOf<HTMLTableDataCellElement> = dataTableContainer.querySelectorAll('td')
     setEllipsisStyles(Array.from(tdsList))
 
-    const dividersList: NodeListOf<HTMLDivElement> = dividersContainer.querySelectorAll(
-      '.resizable-columns-divider'
-    )
+    const dividersList: NodeListOf<HTMLDivElement> = dividersContainer.querySelectorAll('.resizable-columns-divider')
     const dividersArray: HTMLDivElement[] = Array.from(dividersList)
     controller.set('dividersArray', dividersArray)
 
@@ -204,11 +189,7 @@ export const removeDividersContainer = (dataTableContainer: DataTableContainer):
 }
 
 // event handlers
-const mouseDownHandler = (
-  index: number,
-  controller: ControllerInstance,
-  event: MouseEvent
-): void => {
+const mouseDownHandler = (index: number, controller: ControllerInstance, event: MouseEvent): void => {
   try {
     const thsArray = <HTMLTableHeaderCellElement[]>controller.get('thsArray')
 
@@ -243,9 +224,10 @@ const resizeHandler = (controller: ControllerInstance, event: MouseEvent): void 
       if (differenceFromStartPageXPosition && movingThNewWidth >= movingHeaderMinWidth) {
         movingTh.style.width = movingThNewWidth + 'px'
         movingTh.style.minWidth = 'auto'
-        const targetDataTableHeaderIndex = isPropActive('showSelect', dataTableProps)
-          ? movingDividerIndex - 1
-          : movingDividerIndex
+        const targetDataTableHeaderIndex =
+          isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps)
+            ? movingDividerIndex - 1
+            : movingDividerIndex
         dataTableHeaders[targetDataTableHeaderIndex].width = movingThNewWidth
 
         showMessage('info', `Changed width for <th> with index ${movingDividerIndex}`, false)
@@ -274,7 +256,8 @@ const mouseUpHandler = (controller: ControllerInstance): void => {
 
     dataTableHeaders.forEach((header, index) => {
       if (header.class !== CLASSES.EMPTY_COLUMN) {
-        const targetThIndex = isPropActive('showSelect', dataTableProps) ? index + 1 : index
+        const targetThIndex =
+          isPropActive('showSelect', dataTableProps) || isPropActive('showExpand', dataTableProps) ? index + 1 : index
         header.width = thsArray[targetThIndex].offsetWidth
       }
     })
@@ -288,27 +271,16 @@ export const removeListeners = (dataTableContainer: DataTableContainer): void =>
   showMessage('info', 'Removing listeners...', false)
 
   try {
-    document.removeEventListener(
-      'mouseup',
-      <EventListener>dataTableContainer.dataTableMouseUpHandler
-    )
+    document.removeEventListener('mouseup', <EventListener>dataTableContainer.dataTableMouseUpHandler)
 
-    dataTableContainer.removeEventListener(
-      'mousemove',
-      <EventListener>dataTableContainer.dataTableResizeHandler
-    )
+    dataTableContainer.removeEventListener('mousemove', <EventListener>dataTableContainer.dataTableResizeHandler)
 
     const dividersContainer: HTMLDivElement | null = dataTableContainer.querySelector(
       '.resizable-columns-dividers-container'
     )
-    dividersContainer?.removeEventListener(
-      'mousemove',
-      <EventListener>dataTableContainer.dataTableResizeHandler
-    )
+    dividersContainer?.removeEventListener('mousemove', <EventListener>dataTableContainer.dataTableResizeHandler)
 
-    const dividers = <NodeListOf<Divider>>(
-      dataTableContainer.querySelectorAll('.resizable-columns-divider')
-    )
+    const dividers = <NodeListOf<Divider>>dataTableContainer.querySelectorAll('.resizable-columns-divider')
     dividers.forEach((divider) => {
       divider.removeEventListener('mousedown', <EventListener>divider.dividerMouseDownHandler)
     })
@@ -399,9 +371,7 @@ const setEllipsisStyles = (payload: HTMLElement | HTMLElement[]): void => {
 
 const getDividersContainerStyles = (dataTableContainer: DataTableContainer): string => {
   return `${
-    isFixedHeadersActive(dataTableContainer)
-      ? 'position: sticky; top: 0; z-index: 3;'
-      : 'position: relative;'
+    isFixedHeadersActive(dataTableContainer) ? 'position: sticky; top: 0; z-index: 3;' : 'position: relative;'
   } width: ${dataTableContainer.offsetWidth}px; `
 }
 

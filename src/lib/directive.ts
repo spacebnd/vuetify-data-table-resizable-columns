@@ -43,9 +43,7 @@ const directive: DirectiveOptions = {
     const component = <any>vnode.context
     showMessage(
       'info',
-      `VNode updated ${
-        userOption && userOption !== 'debug' ? `with user option: ${userOption}` : ''
-      }`,
+      `VNode updated ${userOption && userOption !== 'debug' ? `with user option: ${userOption}` : ''}`,
       false
     )
 
@@ -69,9 +67,7 @@ const directive: DirectiveOptions = {
         showMessage('info', 'Data table props changed and data table is ready', false)
         drawColumnDividers(<DataTableContainer>el, <Binding>binding, vnode)
       } else {
-        const observer: ResizeObserver = new ResizeObserver(
-          resizeObserverHandler.bind(null, <Binding>binding, vnode)
-        )
+        const observer: ResizeObserver = new ResizeObserver(resizeObserverHandler.bind(null, <Binding>binding, vnode))
         showMessage('info', 'Observing started...', false)
         observer.observe(el)
       }
